@@ -23,3 +23,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Error al procesar ticket' }, { status: 500 });
   }
 }
+

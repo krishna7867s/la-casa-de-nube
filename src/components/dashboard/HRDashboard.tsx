@@ -19,6 +19,7 @@ import {
   ExternalLink,
   LifeBuoy,
   Inbox,
+  Printer,
 } from 'lucide-react';
 
 interface HRDashboardProps {
@@ -185,10 +186,21 @@ export function HRDashboard({ currentUserRole }: HRDashboardProps) {
           <button
             onClick={handleSyncDrive}
             disabled={syncingDrive}
-            className="flex items-center gap-1.5 bg-[#FFF8EF] hover:bg-nube-rosa text-nube-ciruela border border-[#E7D8CF] px-3 py-2 rounded-xl text-xs font-semibold transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 bg-[#FFF8EF] hover:bg-nube-rosa text-nube-ciruela border border-[#E7D8CF] px-3 py-2 rounded-xl text-xs font-semibold transition-colors disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${syncingDrive ? 'animate-spin' : ''}`} />
             <span>{syncingDrive ? 'Sincronizando...' : 'Sincronizar Drive'}</span>
+          </button>
+
+          {/* Imprimir Acta Oficial */}
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="flex items-center gap-1.5 bg-[#FFF8EF] hover:bg-nube-rosa text-nube-ciruela border border-[#E7D8CF] px-3 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+            title="Imprimir acta oficial del reporte diario"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            <span>Imprimir Acta</span>
           </button>
 
           {/* Banco de Evaluación */}

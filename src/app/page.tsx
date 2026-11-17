@@ -6,6 +6,7 @@ import { POLICY_DOCUMENTS } from '../data/policies';
 import { EmployeeProfile } from '../types';
 import { AgendaChat } from '../components/chat/AgendaChat';
 import { HRDashboard } from '../components/dashboard/HRDashboard';
+import { EmployeeNotebook } from '../components/employee/EmployeeNotebook';
 import { CloudIcon, StrawberryIcon, ScallopHeaderLace } from '../components/icons/StationeryIcons';
 import {
   MessageSquare,
@@ -148,62 +149,12 @@ export default function HomePage() {
           {activeTab === 'chat' && <AgendaChat activeEmployee={activeEmployee} />}
 
           {activeTab === 'perfil' && (
-            <div className="max-w-3xl mx-auto space-y-4">
-              <div className="p-6 rounded-agenda bg-[#FFFDF8] border border-[#E7D8CF] shadow-xs space-y-4">
-                <div className="flex items-center justify-between border-b border-[#E7D8CF]/60 pb-4">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={activeEmployee.avatar_url}
-                      alt={activeEmployee.full_name}
-                      className="w-12 h-12 rounded-xl bg-[#F7D8DF] p-1 border border-[#E7D8CF]"
-                    />
-                    <div>
-                      <h2 className="font-heading font-semibold text-lg text-[#633248]">
-                        {activeEmployee.full_name}
-                      </h2>
-                      <p className="text-xs text-[#6B5A66] font-sans">
-                        {activeEmployee.position} · Departamento de {activeEmployee.department}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-semibold text-[#633248] bg-[#DCE8D3] px-3 py-1 rounded-full border border-[#E7D8CF]">
-                    Colaborador activo
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                  <div className="p-4 rounded-xl bg-[#FFF8EF] border border-[#E7D8CF]">
-                    <span className="text-xs text-[#6B5A66] font-sans">Saldo de vacaciones</span>
-                    <div className="font-heading font-semibold text-2xl text-[#633248] mt-1">
-                      {activeEmployee.vacation_days_balance} días
-                    </div>
-                    <span className="text-[11px] text-[#6B5A66] font-sans">
-                      Días hábiles acumulados
-                    </span>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-[#FFF8EF] border border-[#E7D8CF]">
-                    <span className="text-xs text-[#6B5A66] font-sans">Próximo pago</span>
-                    <div className="font-heading font-semibold text-base text-[#633248] mt-2">
-                      30 de noviembre
-                    </div>
-                    <span className="text-[11px] text-[#6B5A66] font-sans">
-                      Aguinaldo al 12 de diciembre
-                    </span>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-[#FFF8EF] border border-[#E7D8CF]">
-                    <span className="text-xs text-[#6B5A66] font-sans">Próxima evaluación</span>
-                    <div className="font-heading font-semibold text-base text-[#633248] mt-2">
-                      15 de diciembre
-                    </div>
-                    <span className="text-[11px] text-[#6B5A66] font-sans">
-                      Ciclo semestral
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <EmployeeNotebook
+              employee={activeEmployee}
+              onBalanceUpdate={(newBal) => {
+                setActiveEmployee((prev) => ({ ...prev, vacation_days_balance: newBal }));
+              }}
+            />
           )}
 
           {activeTab === 'politicas' && (
