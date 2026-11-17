@@ -3,16 +3,54 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, EmployeeProfile } from '../../types';
 import { CloudIcon, StrawberryIcon, ScallopHeaderLace } from '../icons/StationeryIcons';
-import { Send, ExternalLink, BookOpen } from 'lucide-react';
+import { Send, ExternalLink, BookOpen, Volume2, Mic, MicOff, Sparkles } from 'lucide-react';
 
 interface AgendaChatProps {
   activeEmployee: EmployeeProfile;
+}
+
+// Subcomponente de texto progresivo efecto "tinta en agenda"
+function TypewriterContent({ text, isStreaming }: { text: string; isStreaming?: boolean }) {
+  const [displayed, setDisplayed] = useState(isStreaming ? '' : text);
+  const [typing, setTyping] = useState(isStreaming);
+
+  useEffect(() => {
+    if (!isStreaming) {
+      setDisplayed(text);
+      setTyping(false);
+      return;
+    }
+
+    let i = 0;
+    setTyping(true);
+    const interval = setInterval(() => {
+      i += 3;
+      if (i >= text.length) {
+        setDisplayed(text);
+        setTyping(false);
+        clearInterval(interval);
+      } else {
+        setDisplayed(text.slice(0, i));
+      }
+    }, 12);
+
+    return () => clearInterval(interval);
+  }, [text, isStreaming]);
+
+  return (
+    <div className="text-base leading-relaxed whitespace-pre-wrap font-sans">
+      {displayed}
+      {typing && <span className="inline-block w-1.5 h-4 ml-1 bg-[#633248] animate-pulse align-middle" />}
+    </div>
+  );
 }
 
 export function AgendaChat({ activeEmployee }: AgendaChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [lastStreamingId, setLastStreamingId] = useState<string | null>(null);
+  const [isListening, setIsListening] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -31,6 +69,48 @@ export function AgendaChat({ activeEmployee }: AgendaChatProps) {
     '¿Cómo pido un reembolso?',
     '¿Cuántos días de vacaciones me quedan?',
   ];
+
+  const speakMessage = (text: string) => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const cleanText = text.replace(/[*_#•]/g, ' ');
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = 'es-CR';
+      utterance.rate = 1.05;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const toggleListening = () => {
+    if (typeof window === 'undefined') return;
+    const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRec) {
+      alert('Tu navegador no cuenta con soporte nativo de micrófono. Recomendamos Google Chrome.');
+      return;
+    }
+
+    if (isListening) {
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRec();
+      recognition.lang = 'es-CR';
+      recognition.interimResults = false;
+      setIsListening(true);
+      recognition.onresult = (e: any) => {
+        const spoken = e.results[0][0].transcript;
+        setInput((prev) => (prev ? `${prev} ${spoken}` : spoken));
+        setIsListening(false);
+      };
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
+      recognition.start();
+    } catch {
+      setIsListening(false);
+    }
+  };
 
   const handleSend = async (queryText?: string) => {
     const textToSend = queryText || input;
@@ -61,27 +141,26 @@ export function AgendaChat({ activeEmployee }: AgendaChatProps) {
 
       if (data.message) {
         setMessages((prev) => [...prev, data.message]);
+        setLastStreamingId(data.message.id);
       } else {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `err-${Date.now()}`,
-            sender: 'assistant',
-            content: 'No encontré una política sobre ese tema. Podés consultarlo con RRHH.',
-            timestamp: new Date().toISOString(),
-          },
-        ]);
-      }
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
+        const errMsg: ChatMessage = {
           id: `err-${Date.now()}`,
           sender: 'assistant',
           content: 'No encontré una política sobre ese tema. Podés consultarlo con RRHH.',
           timestamp: new Date().toISOString(),
-        },
-      ]);
+        };
+        setMessages((prev) => [...prev, errMsg]);
+        setLastStreamingId(errMsg.id);
+      }
+    } catch {
+      const errMsg: ChatMessage = {
+        id: `err-${Date.now()}`,
+        sender: 'assistant',
+        content: 'No encontré una política sobre ese tema. Podés consultarlo con RRHH.',
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, errMsg]);
+      setLastStreamingId(errMsg.id);
     } finally {
       setLoading(false);
       setTimeout(() => inputRef.current?.focus(), 50);
@@ -169,17 +248,34 @@ export function AgendaChat({ activeEmployee }: AgendaChatProps) {
                     : 'bg-[#FFF8EF] text-[#382C35] border border-[#E7D8CF] rounded-bl-xs'
                 }`}
               >
-                {/* Etiqueta de procedencia simple (oculta nombres técnicos de agentes y latencia) */}
+                {/* Etiqueta de procedencia simple y control de voz */}
                 {!isUser && (
-                  <div className="text-xs font-semibold text-[#633248] mb-2 pb-1 border-b border-[#E7D8CF]/60 font-heading">
-                    {isPersonal ? 'Tus datos' : 'Políticas de Nube de Fresa'}
+                  <div className="flex items-center justify-between mb-2 pb-1 border-b border-[#E7D8CF]/60 font-heading">
+                    <span className="text-xs font-semibold text-[#633248]">
+                      {isPersonal ? 'Tus datos' : 'Políticas de Nube de Fresa'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => speakMessage(msg.content)}
+                      className="p-1 text-[#6B5A66] hover:text-[#633248] rounded hover:bg-[#F7D8DF]/60 transition-colors cursor-pointer"
+                      title="Escuchar respuesta en voz alta"
+                    >
+                      <Volume2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 )}
 
                 {/* Texto de respuesta con tamaño mínimo de 16px (text-base) e interlineado cómodo */}
-                <div className="text-base leading-relaxed whitespace-pre-wrap font-sans">
-                  {msg.content}
-                </div>
+                {isUser ? (
+                  <div className="text-base leading-relaxed whitespace-pre-wrap font-sans">
+                    {msg.content}
+                  </div>
+                ) : (
+                  <TypewriterContent
+                    text={msg.content}
+                    isStreaming={msg.id === lastStreamingId}
+                  />
+                )}
 
                 {/* Fuentes debajo de la respuesta: Supabase (título, versión, vigencia) o Drive */}
                 {!isUser && msg.citations && msg.citations.length > 0 && (
@@ -252,10 +348,23 @@ export function AgendaChat({ activeEmployee }: AgendaChatProps) {
                 handleSend();
               }
             }}
-            placeholder="Escribí tu pregunta"
+            placeholder={isListening ? "Escuchando... hablá con claridad" : "Escribí tu pregunta"}
             disabled={loading}
             className="flex-1 bg-[#FFF8EF] border border-[#E7D8CF] rounded-xl px-4 py-3 text-base text-[#382C35] placeholder-[#6B5A66]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#633248]"
           />
+          <button
+            type="button"
+            onClick={toggleListening}
+            disabled={loading}
+            title={isListening ? "Detener dictado" : "Dictar por voz"}
+            className={`p-3 rounded-xl border border-[#E7D8CF] transition-colors cursor-pointer ${
+              isListening
+                ? 'bg-[#F7D8DF] text-[#633248] animate-pulse border-[#633248]'
+                : 'bg-[#FFF8EF] text-[#6B5A66] hover:bg-[#F7D8DF] hover:text-[#633248]'
+            }`}
+          >
+            {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+          </button>
           <button
             type="submit"
             disabled={loading || !input.trim()}

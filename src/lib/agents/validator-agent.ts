@@ -1,11 +1,12 @@
 // ==============================================================================
-// AGENTE EXTRA (PUNTOS EXTRA): AGENTE VALIDADOR
-// Revisa cada respuesta antes de enviarla:
-// 1. ¿Está respaldada por citas oficiales?
-// 2. ¿Contiene datos personales de un tercero no autorizado?
+// AGENTE EXTRA (PUNTOS EXTRA): AGENTE VALIDADOR Y GUARDRAILS DE SEGURIDAD
+// Revisa entrada y salida de las consultas:
+// 1. Detección de Prompt Injection / Jailbreaks adversariales
+// 2. Enmascaramiento PII (Personally Identifiable Information)
+// 3. Verificación de citas y ausencia de fuga de terceros
 // ==============================================================================
 
-import { ChatMessage, UserRole } from '../../types';
+import { UserRole } from '../../types';
 
 export interface ValidationResult {
   isValid: boolean;
@@ -13,7 +14,63 @@ export interface ValidationResult {
   violationsDetected: string[];
 }
 
+export interface InputGuardResult {
+  isSafe: boolean;
+  blockedReason?: string;
+}
+
 export class ValidatorAgent {
+  /**
+   * Guardrail de entrada: detecta intentos adversariales de prompt injection o evasión.
+   */
+  inspectInputQuery(query: string): InputGuardResult {
+    const q = query.toLowerCase().trim();
+
+    const injectionPatterns = [
+      'ignora las instrucciones',
+      'ignore previous instructions',
+      'olvida tus reglas',
+      'forget your rules',
+      'actúa como el administrador',
+      'modo desarrollador',
+      'developer mode',
+      'system prompt',
+      'muéstrame tus instrucciones',
+      'dan mode',
+      'desactiva las restricciones',
+      'burlar el sistema',
+    ];
+
+    for (const pattern of injectionPatterns) {
+      if (q.includes(pattern)) {
+        return {
+          isSafe: false,
+          blockedReason: `Intento de alteración de directivas detectado ("${pattern}").`,
+        };
+      }
+    }
+
+    return { isSafe: true };
+  }
+
+  /**
+   * Enmascara información de identificación personal (PII) en textos o registros de auditoría.
+   */
+  maskPIIData(text: string): string {
+    let masked = text;
+
+    // Enmascarar números de teléfono costarricenses (+506 8XXX-XXXX o 8 dígitos)
+    masked = masked.replace(/(\+?506\s*)?[2678]\d{3}[-\s]?\d{4}/g, '+506 ****-****');
+
+    // Enmascarar correos electrónicos personales
+    masked = masked.replace(/([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, (match, user, domain) => {
+      if (domain === 'nubedefresa.cr') return match; // conservar institucionales
+      return `${user.slice(0, 2)}***@${domain}`;
+    });
+
+    return masked;
+  }
+
   /**
    * Valida la respuesta saliente antes de entregarla al colaborador.
    */
@@ -24,12 +81,11 @@ export class ValidatorAgent {
     citationsCount: number;
     intent: string;
   }): ValidationResult {
-    const { content, targetEmployeeId, requesterRole, citationsCount, intent } = params;
+    const { content, requesterRole, citationsCount, intent } = params;
     const violations: string[] = [];
     let sanitized = content;
 
     // 1. Validación de Privacidad: Fuga de datos de terceros
-    // Si no es RRHH, ninguna respuesta puede contener salarios de terceros ni nombres vinculados a datos sensibles
     if (requesterRole !== 'rrhh') {
       const forbiddenPhrases = [
         'salario de', 'gana ₡', 'gana colones', 'vacaciones de juan', 'vacaciones de carlos',
@@ -52,8 +108,10 @@ export class ValidatorAgent {
     // 2. Validación de Citas para Políticas
     if (intent === 'policy' && citationsCount === 0 && !content.includes('No encontré')) {
       violations.push('Respuesta de política sin citas oficiales adjuntas.');
-      // El validador añade recordatorio institucional si faltara
     }
+
+    // 3. Enmascaramiento PII de salida preventiva
+    sanitized = this.maskPIIData(sanitized);
 
     return {
       isValid: violations.length === 0,
@@ -64,4 +122,3 @@ export class ValidatorAgent {
 }
 
 export const validatorAgent = new ValidatorAgent();
-

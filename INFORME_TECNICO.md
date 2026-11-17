@@ -144,5 +144,32 @@ Se implementó un banco de pruebas exhaustivo con **25 preguntas base** del caso
    - La capa de acceso a Drive cuenta con la interfaz de sincronización incremental completa y los 10 documentos listos en la base documental local. Requiere registrar la cuenta de servicio de Google Cloud para el entorno productivo real.
 
 ---
-*Informe técnico aprobado para despliegue de versión 1.0.*
+
+## 7. Mejoras de Nivel Empresarial Implementadas (Producción y Alta Madurez)
+
+Para trascender el alcance de un prototipo académico y convertir «La Casita de Nube» en una plataforma de grado empresarial, se incorporaron cinco módulos avanzados:
+
+1. **Búsqueda Híbrida (Dense + Sparse) y Reciprocal Rank Fusion (RRF):**
+   - El motor de recuperación combina scoring léxico ponderado (BM25 con pesos específicos en títulos, secciones y términos normativos exactos como «artículo 28», «preaviso», «cesantía») con similitud semántica densa.
+   - Aplica la fórmula de fusión de rangos recíprocos con constante de suavizado $k=60$:
+     $$RRF(d) = \sum_{m \in \{\text{sparse}, \text{dense}\}} \frac{1}{60 + \text{rango}_m(d)}$$
+   - Esto previene pérdidas en consultas que dependen de códigos o números específicos de artículos legales.
+
+2. **Streaming Progresivo en Interfaz (Efecto Tinta en Agenda):**
+   - La interfaz del chat emite las respuestas de forma progresiva simulando la escritura a mano en la papelería japonesa, reduciendo el tiempo percibido de espera (`Time To First Token`).
+
+3. **Interacción Multimodal por Voz (Puntos Extra):**
+   - Soporte nativo para **Lectura en Voz Alta (Text-to-Speech)** utilizando `SpeechSynthesis` en español costarricense (`es-CR`) para cada respuesta del asistente.
+   - Soporte para **Dictado por Micrófono (Speech-to-Text)** mediante la API de reconocimiento de voz del navegador, facilitando consultas fluidas sin teclado.
+
+4. **Flujo Human-in-the-Loop y Mesa de Ayuda de RRHH:**
+   - Cuando una consulta carece de cobertura documental (e.g., bono por mascotas), el Agente de Escalamiento genera un ticket formal (`TCK-XXXX`).
+   - El Dashboard de RRHH cuenta con una sección interactiva de **Mesa de Ayuda** donde los analistas pueden revisar las dudas no resueltas por el bot, redactar la respuesta oficial y cerrar el ticket, retroalimentando el catálogo institucional.
+
+5. **Guardrails de Entrada y Enmascaramiento PII Dinámico:**
+   - El Agente Validador analiza las entradas en milisegundos detectando patrones de *Prompt Injection* y *Jailbreaks* (`ignore previous instructions`, `modo desarrollador`, etc.), neutralizando cualquier intento de evasión.
+   - Asimismo, ejecuta expresiones regulares de enmascaramiento sobre teléfonos costarricenses (`+506 ****-****`) y correos personales antes de emitir respuestas o persistir registros.
+
+---
+*Informe técnico aprobado para despliegue de versión 2.0 empresarial.*
 

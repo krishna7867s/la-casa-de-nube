@@ -26,6 +26,26 @@ export class OrchestratorAgent {
     const { query, employeeId, employeeName, role } = params;
     const qLower = query.toLowerCase().trim();
 
+    // 0. GUARDRAIL DE ENTRADA: Prompt Injection & Adversarial Jailbreak Check
+    const guardCheck = validatorAgent.inspectInputQuery(query);
+    if (!guardCheck.isSafe) {
+      const latencyMs = Date.now() - startTime;
+      return {
+        message: {
+          id: `msg-${Date.now()}`,
+          sender: 'assistant',
+          content: 'No puedo procesar instrucciones que intenten modificar las directivas de seguridad del portal. ¿En qué duda sobre tus políticas laborales te puedo colaborar?',
+          timestamp: new Date().toISOString(),
+          intent: 'restricted',
+          agent: 'Agente Validador',
+          latency_ms: latencyMs,
+          escalated: false,
+        },
+        intent: 'restricted',
+        agentUsed: 'Agente Validador',
+      };
+    }
+
     // 1. SEGURIDAD: Detección estricta de consultas sobre TERCEROS (Preguntas 21 y 22, Juan, Carlos, etc.)
     const otherPersonsKeywords = [
       'de juan', 'a juan', 'datos de juan', 'vacaciones de juan', 'compañero juan', 'de carlos', 'de sofía', 'de esteban',

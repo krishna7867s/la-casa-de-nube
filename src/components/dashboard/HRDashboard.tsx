@@ -17,6 +17,8 @@ import {
   ShieldCheck,
   ChevronRight,
   ExternalLink,
+  LifeBuoy,
+  Inbox,
 } from 'lucide-react';
 
 interface HRDashboardProps {
@@ -35,6 +37,40 @@ export function HRDashboard({ currentUserRole }: HRDashboardProps) {
   // Estado para la evaluación en vivo de 45 preguntas
   const [evalData, setEvalData] = useState<any | null>(null);
   const [evalLoading, setEvalLoading] = useState(false);
+
+  // Estado para la Mesa de Ayuda / Escalamiento Human-in-the-Loop
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [ticketResponses, setTicketResponses] = useState<{ [id: string]: string }>({});
+
+  const fetchTickets = async () => {
+    try {
+      const res = await fetch('/api/tickets');
+      const data = await res.json();
+      if (data.tickets) setTickets(data.tickets);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    fetchTickets();
+  }, []);
+
+  const handleResolveTicket = async (ticketId: string) => {
+    const answer = ticketResponses[ticketId] || 'Revisado formalmente por RRHH. Se notificará la política en el próximo boletín institucional.';
+    try {
+      const res = await fetch('/api/tickets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticketId, officialAnswer: answer }),
+      });
+      if (res.ok) {
+        fetchTickets();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const fetchReport = async (dateStr: string) => {
     setLoading(true);
@@ -467,6 +503,84 @@ export function HRDashboard({ currentUserRole }: HRDashboardProps) {
                 ))}
               </div>
             </div>
+          </div>
+
+          {/* MESA DE AYUDA Y ESCALAMIENTO (HUMAN-IN-THE-LOOP) */}
+          <div className="p-6 rounded-2xl bg-white border border-[#E7D8CF] shadow-agenda space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E7D8CF]">
+              <div className="flex items-center gap-2">
+                <LifeBuoy className="w-5 h-5 text-nube-ciruela" />
+                <div>
+                  <h4 className="font-heading font-bold text-sm text-nube-ciruela">
+                    Mesa de Ayuda de RRHH · Escalamientos Human-in-the-Loop
+                  </h4>
+                  <p className="text-xs text-nube-texto-suave">
+                    Tickets generados automáticamente cuando el bot no encuentra cobertura en políticas.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={fetchTickets}
+                className="text-xs bg-[#FFF8EF] hover:bg-nube-rosa text-nube-ciruela border border-[#E7D8CF] px-3 py-1 rounded-lg font-semibold flex items-center gap-1 cursor-pointer"
+              >
+                <RefreshCw className="w-3 h-3" />
+                Actualizar
+              </button>
+            </div>
+
+            {tickets.length === 0 ? (
+              <div className="p-4 rounded-xl bg-[#FFF8EF] border border-[#E7D8CF] text-center text-xs text-nube-texto-suave">
+                No hay tickets pendientes de escalamiento. El bot ha resuelto las consultas de los colaboradores con éxito.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {tickets.map((t) => (
+                  <div key={t.id} className="p-4 rounded-xl bg-[#FFFDF8] border border-[#E7D8CF] space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-xs text-nube-ciruela bg-[#F7D8DF] px-2 py-0.5 rounded">
+                          {t.id}
+                        </span>
+                        <span className="text-xs font-semibold text-[#382C35]">{t.employee_name}</span>
+                      </div>
+                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                        t.status === 'resuelto' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {t.status === 'resuelto' ? 'Resuelto' : 'Pendiente de Respuesta'}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-[#382C35] bg-[#FFF8EF] p-2.5 rounded-lg border border-[#E7D8CF]/60 font-sans">
+                      «{t.unanswered_question}»
+                    </p>
+
+                    {t.status !== 'resuelto' ? (
+                      <div className="flex items-center gap-2 pt-1">
+                        <input
+                          type="text"
+                          placeholder="Escribí la respuesta oficial de RRHH..."
+                          value={ticketResponses[t.id] || ''}
+                          onChange={(e) => setTicketResponses({ ...ticketResponses, [t.id]: e.target.value })}
+                          className="flex-1 text-xs bg-white border border-[#E7D8CF] rounded-lg px-3 py-2 text-[#382C35] focus:outline-none focus:ring-1 focus:ring-nube-ciruela"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleResolveTicket(t.id)}
+                          className="bg-nube-ciruela hover:bg-[#7A3F59] text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer"
+                        >
+                          Responder y Cerrar
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="text-[11px] text-emerald-700 bg-emerald-50/70 p-2 rounded border border-emerald-200">
+                        {t.notes}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </>
       )}

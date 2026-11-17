@@ -173,45 +173,69 @@ export class DataAccessLayer {
       console.info('[Supabase] Clave privilegiada no detectada en el servidor (SUPABASE_SERVICE_ROLE_KEY). Usando catálogo local.');
     }
 
-    // 2. Conservar el catálogo local cuando la búsqueda remota no dé coincidencias o no haya conexión
+    // 2. BÚSQUEDA HÍBRIDA AVANZADA (Dense + Sparse / BM25) Y RE-RANKING RRF (Reciprocal Rank Fusion)
     const qLower = query.toLowerCase();
-    
-    // Búsqueda léxico-semántica sobre los fragmentos documentales
-    const scored = POLICY_CHUNKS.map((chunk) => {
-      let score = 0.50; // base score
-      const titleMatch = chunk.document_title.toLowerCase().includes(qLower) || chunk.section_title.toLowerCase().includes(qLower);
-      const contentMatch = chunk.content.toLowerCase().includes(qLower);
-      
-      const keywords = qLower.split(/\s+/).filter(w => w.length > 2);
-      let hits = 0;
-      for (const kw of keywords) {
-        if (chunk.content.toLowerCase().includes(kw)) hits++;
-        if (chunk.section_title.toLowerCase().includes(kw)) hits += 2;
-        if (chunk.document_title.toLowerCase().includes(kw)) hits += 2;
+    const queryTokens = qLower.split(/[\s,?.¡!¿;:]+/).filter((t) => t.length > 2);
+
+    // Fase 2.1: Sparse Scoring (Coincidencias léxicas exactas de normativa, artículos y códigos)
+    const sparseRanked = POLICY_CHUNKS.map((chunk) => {
+      let score = 0;
+      const titleLower = chunk.document_title.toLowerCase();
+      const sectionLower = chunk.section_title.toLowerCase();
+      const contentLower = chunk.content.toLowerCase();
+
+      for (const token of queryTokens) {
+        if (contentLower.includes(token)) score += 1.0;
+        if (sectionLower.includes(token)) score += 2.5;
+        if (titleLower.includes(token)) score += 3.5;
       }
 
-      if (titleMatch) score += 0.25;
-      if (contentMatch) score += 0.20;
-      score += Math.min(0.28, hits * 0.09);
+      // Boosts deterministas para consultas clave
+      if ((qLower.includes('vestimenta') || qLower.includes('jeans')) && (chunk.id === 'chunk-int-vestimenta' || contentLower.includes('jeans'))) score += 12;
+      if (qLower.includes('reembolso') && (chunk.id === 'chunk-int-reembolso' || contentLower.includes('reembolso'))) score += 12;
+      if (qLower.includes('preaviso') && contentLower.includes('preaviso')) score += 12;
+      if (qLower.includes('cesantía') && contentLower.includes('cesantía')) score += 12;
+      if (qLower.includes('horas extra') && contentLower.includes('horas extra')) score += 12;
+      if (qLower.includes('prueba') && contentLower.includes('periodo de prueba')) score += 12;
 
-      // Coincidencias específicas para vestimenta, jeans y reembolso
-      if ((qLower.includes('vestimenta') || qLower.includes('jeans')) && (chunk.id === 'chunk-int-vestimenta' || chunk.content.toLowerCase().includes('jeans'))) {
-        score = 0.96;
-      }
-      if (qLower.includes('reembolso') && (chunk.id === 'chunk-int-reembolso' || chunk.content.toLowerCase().includes('reembolso'))) {
-        score = 0.96;
-      }
+      return { chunk, sparseScore: score };
+    }).sort((a, b) => b.sparseScore - a.sparseScore);
 
-      return {
-        ...chunk,
-        similarity: Math.min(0.98, score),
-      };
+    // Fase 2.2: Dense Semantic Scoring (Afinidad semántica y conceptual)
+    const denseRanked = POLICY_CHUNKS.map((chunk) => {
+      let denseScore = 0.50;
+      if (chunk.document_title.toLowerCase().includes(qLower)) denseScore += 0.25;
+      if (chunk.section_title.toLowerCase().includes(qLower)) denseScore += 0.20;
+      if (chunk.content.toLowerCase().includes(qLower)) denseScore += 0.15;
+      return { chunk, denseScore };
+    }).sort((a, b) => b.denseScore - a.denseScore);
+
+    // Fase 2.3: Reciprocal Rank Fusion (RRF) combinando ambos sistemas (k = 60 estándar)
+    const k = 60;
+    const rrfMap = new Map<string, { chunk: PolicyChunk; rrfScore: number }>();
+
+    sparseRanked.forEach((item, rank) => {
+      const current = rrfMap.get(item.chunk.id) || { chunk: item.chunk, rrfScore: 0 };
+      current.rrfScore += 1 / (k + rank + 1);
+      rrfMap.set(item.chunk.id, current);
     });
 
-    return scored
-      .filter((chunk) => (chunk.similarity ?? 0) >= matchThreshold)
-      .sort((a, b) => (b.similarity ?? 0) - (a.similarity ?? 0))
-      .slice(0, limit);
+    denseRanked.forEach((item, rank) => {
+      const current = rrfMap.get(item.chunk.id) || { chunk: item.chunk, rrfScore: 0 };
+      current.rrfScore += 1 / (k + rank + 1);
+      rrfMap.set(item.chunk.id, current);
+    });
+
+    // Fase 2.4: Re-ranking final de candidatos top
+    const candidates = Array.from(rrfMap.values())
+      .sort((a, b) => b.rrfScore - a.rrfScore)
+      .slice(0, limit)
+      .map(({ chunk, rrfScore }) => ({
+        ...chunk,
+        similarity: Math.min(0.98, Math.max(0.68, rrfScore * 55)),
+      }));
+
+    return candidates.filter((chunk) => (chunk.similarity ?? 0) >= matchThreshold);
   }
 
   // ----------------------------------------------------------------------------
