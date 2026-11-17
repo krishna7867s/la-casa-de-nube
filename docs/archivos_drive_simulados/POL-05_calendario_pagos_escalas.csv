@@ -1,0 +1,8 @@
+id,puesto,departamento,salario_base_crc,modalidad,fecha_pago_quincenal_1,fecha_pago_quincenal_2,aguinaldo_estimado_crc
+NUBE-01,Diseñadora Senior de Papelería,Diseño e Ilustración,950000,Híbrida (2/3),15,30/31,950000
+NUBE-02,Ilustrador Editorial Junior,Diseño e Ilustración,650000,Híbrida (2/3),15,30/31,650000
+NUBE-03,Especialista de Calidad y Preprensa,Producción y Encuadernación,720000,Presencial,15,30/31,720000
+NUBE-04,Líder de RRHH y Cultura,Recursos Humanos y Cultura,1200000,Híbrida (2/3),15,30/31,1200000
+NUBE-05,Analista de Nómina y Compensación,Recursos Humanos y Cultura,800000,Híbrida (2/3),15,30/31,800000
+NUBE-06,Desarrollador Fullstack Web,Tecnología y Sistemas,1100000,Remota,15,30/31,1100000
+

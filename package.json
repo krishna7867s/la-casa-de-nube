@@ -1,0 +1,39 @@
+{
+  "name": "mii-proyecto",
+  "version": "1.0.0",
+  "description": "La Casita de Nube - Portal de Políticas de RRHH con RAG Multiagente para Nube de Fresa (Costa Rica)",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test:eval": "node scripts/run-eval-runner.mjs"
+  },
+  "keywords": [
+    "nextjs",
+    "rag",
+    "multiagent",
+    "costa-rica",
+    "hr",
+    "supabase"
+  ],
+  "author": "Nube de Fresa",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.45.6",
+    "autoprefixer": "^10.4.20",
+    "lucide-react": "^0.453.0",
+    "next": "^14.2.15",
+    "postcss": "^8.4.47",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.6.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1"
+  }
+}
