@@ -79,7 +79,7 @@ export default function HomePage() {
                     : 'text-[#6B5A66] hover:text-[#633248]'
                 }`}
               >
-                Sofía (RRHH)
+                Laura (RRHH)
               </button>
             </div>
           </div>

@@ -81,7 +81,7 @@ for (const dept of DEPARTMENTS) {
 // Empleado demo colaborador destacado
 export const DEMO_COLABORADOR = EMPLOYEES[0]; // Mariana Castro Solís
 // Empleado demo RRHH destacado
-export const DEMO_RRHH = EMPLOYEES.find(e => e.role === 'rrhh') || EMPLOYEES[56]; // Sofía Mora
+export const DEMO_RRHH = EMPLOYEES.find(e => e.role === 'rrhh') || EMPLOYEES[56]; // Laura Araya Monge (Líder de RRHH)
 
 // ==============================================================================
 // SOLICITUDES DE PERMISOS Y VACACIONES
@@ -172,6 +172,30 @@ export const LEAVE_REQUESTS: LeaveRequest[] = [
     reason: 'Renovación de cédula y pasaporte',
     status: 'pendiente',
     submitted_at: '2026-11-13T11:20:00-06:00', // > 3 días
+  },
+  {
+    id: 'req-108',
+    employee_id: EMPLOYEES[56].id, // Laura Araya Monge (RRHH)
+    employee_name: EMPLOYEES[56].full_name,
+    request_type: 'vacaciones',
+    start_date: '2026-12-22',
+    end_date: '2026-12-24',
+    days_requested: 3,
+    reason: 'Vacaciones de fin de año',
+    status: 'aprobada',
+    submitted_at: '2026-11-05T08:30:00-06:00',
+  },
+  {
+    id: 'req-109',
+    employee_id: EMPLOYEES[56].id, // Laura Araya Monge (RRHH)
+    employee_name: EMPLOYEES[56].full_name,
+    request_type: 'permiso',
+    start_date: '2026-11-27',
+    end_date: '2026-11-27',
+    days_requested: 1,
+    reason: 'Permiso administrativo para capacitación de legislación laboral',
+    status: 'pendiente',
+    submitted_at: '2026-11-15T10:00:00-06:00',
   }
 ];
 

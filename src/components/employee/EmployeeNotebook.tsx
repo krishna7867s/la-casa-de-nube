@@ -330,3 +330,4 @@ export function EmployeeNotebook({ employee, onBalanceUpdate }: EmployeeNotebook
     </div>
   );
 }
+

@@ -57,18 +57,49 @@ export class OrchestratorAgent {
     const isAskingForThirdParty = otherPersonsKeywords.some((kw) => qLower.includes(kw));
 
     if (isAskingForThirdParty) {
-      const latencyMs = Date.now() - startTime;
-      const restrictedMsg: ChatMessage = {
-        id: `msg-${Date.now()}`,
-        sender: 'assistant',
-        content: 'Solo podés consultar tu propio saldo de vacaciones.',
-        timestamp: new Date().toISOString(),
-        intent: 'restricted',
-        agent: 'Orquestador',
-        latency_ms: latencyMs,
-        escalated: false,
-      };
-      return { message: restrictedMsg, intent: 'restricted', agentUsed: 'Orquestador' };
+      // Salvedad explícita de la regla de la página 5 del PDF: "salvo usuarios con rol RRHH"
+      if (role !== 'rrhh') {
+        const latencyMs = Date.now() - startTime;
+        const restrictedMsg: ChatMessage = {
+          id: `msg-${Date.now()}`,
+          sender: 'assistant',
+          content: 'Solo podés consultar tu propio saldo de vacaciones.',
+          timestamp: new Date().toISOString(),
+          intent: 'restricted',
+          agent: 'Orquestador',
+          latency_ms: latencyMs,
+          escalated: false,
+        };
+        return { message: restrictedMsg, intent: 'restricted', agentUsed: 'Orquestador' };
+      } else {
+        // ROL RRHH AUTORIZADO (Laura / RRHH consultando datos autorizados del personal)
+        const latencyMs = Date.now() - startTime;
+        const allEmployees = await db.getAllEmployees('rrhh');
+        
+        // Buscar el colaborador por nombre mencionado en la consulta
+        const targetEmp = allEmployees.find((e) => {
+          const fn = e.full_name.toLowerCase();
+          const first = fn.split(' ')[0];
+          return qLower.includes(first) || qLower.includes(fn);
+        });
+
+        if (targetEmp) {
+          return {
+            message: {
+              id: `msg-${Date.now()}`,
+              sender: 'assistant',
+              content: `Consulta autorizada de RRHH para ${targetEmp.full_name}:\n• **Puesto:** ${targetEmp.position} (${targetEmp.department})\n• **Saldo de vacaciones:** ${targetEmp.vacation_days_balance} días hábiles\n• **Salario registrado:** ₡${targetEmp.salary_colones.toLocaleString('es-CR')} CRC\n• **Estado actual:** ${targetEmp.status}`,
+              timestamp: new Date().toISOString(),
+              intent: 'personal_data',
+              agent: 'Agente de Datos del Colaborador',
+              latency_ms: latencyMs,
+              escalated: false,
+            },
+            intent: 'personal_data',
+            agentUsed: 'Agente de Datos del Colaborador',
+          };
+        }
+      }
     }
 
     // 2. Reportes y datos agregados: Solo para RRHH (Pregunta 25)
