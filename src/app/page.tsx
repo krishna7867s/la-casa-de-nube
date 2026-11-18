@@ -7,7 +7,14 @@ import { EmployeeProfile } from '../types';
 import { AgendaChat } from '../components/chat/AgendaChat';
 import { HRDashboard } from '../components/dashboard/HRDashboard';
 import { EmployeeNotebook } from '../components/employee/EmployeeNotebook';
-import { CloudIcon, StrawberryIcon, ScallopHeaderLace } from '../components/icons/StationeryIcons';
+import {
+  CloudIcon,
+  StrawberryIcon,
+  ScallopHeaderLace,
+  PostageStampIcon,
+  PaperclipIcon,
+  SpiralBinderRings,
+} from '../components/icons/StationeryIcons';
 import {
   MessageSquare,
   User,
@@ -18,6 +25,8 @@ import {
   Clock,
   Shield,
   FileText,
+  Building2,
+  FolderOpen,
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -27,125 +36,146 @@ export default function HomePage() {
   const isRRHH = activeEmployee.role === 'rrhh';
 
   return (
-    <div className="min-h-screen flex flex-col justify-between agenda-grid-bg">
-      {/* Encabezado compacto */}
-      <header className="bg-[#FFFDF8] border-b border-[#E7D8CF] sticky top-0 z-40">
-        <div className="max-w-5xl mx-auto px-4 py-2.5 flex items-center justify-between">
-          {/* Logo e identidad */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-[#F7D8DF] flex items-center justify-center border border-[#E7D8CF]">
-              <CloudIcon className="w-4 h-4 text-[#633248]" />
+    <div className="min-h-screen flex flex-col justify-between selection:bg-[#F7D8DF] selection:text-[#633248]">
+      {/* Encabezado Superior Estilo Papelería Fina */}
+      <header className="bg-[#FFFDF8] border-b border-[#E7D8CF] sticky top-0 z-40 shadow-xs">
+        {/* Encaje festoneado inspirado en la papelería japonesa de los 2000 */}
+        <div className="w-full bg-[#FFF8EF]">
+          <ScallopHeaderLace className="w-full h-2.5 text-[#F7D8DF]" />
+        </div>
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+          {/* Identidad del Estudio */}
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-[#FFF8EF] border border-[#E7D8CF] flex items-center justify-center p-1.5 shadow-xs">
+              <CloudIcon className="w-full h-full text-[#633248]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-heading font-semibold text-base text-[#633248] tracking-tight leading-none">
+                <h1 className="font-heading font-bold text-lg text-[#633248] tracking-tight leading-none">
                   La Casita de Nube
                 </h1>
-                <span className="text-[11px] font-sans text-[#6B5A66] bg-[#FFF8EF] px-2 py-0.5 rounded border border-[#E7D8CF]">
-                  Nube de Fresa
+                <span className="stationery-stamp">
+                  CR · 2026
                 </span>
               </div>
+              <p className="text-xs text-[#6B5A66] font-sans mt-0.5">
+                Nube de Fresa S.A. · Estudio de Papelería e Ilustración Digital
+              </p>
             </div>
           </div>
 
-          {/* Navegación y selector de cuenta activa */}
-          <div className="flex items-center gap-3">
-            <div className="hidden md:flex flex-col text-right font-sans">
-              <span className="text-xs font-semibold text-[#633248]">{activeEmployee.full_name}</span>
-              <span className="text-[11px] text-[#6B5A66]">
-                {activeEmployee.position} · {isRRHH ? 'Rol RRHH' : 'Colaborador'}
-              </span>
+          {/* Gafete de Colaborador y Selector de Sesión */}
+          <div className="flex items-center gap-4">
+            <div className="hidden lg:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-[#FFF8EF] border border-[#E7D8CF] text-xs font-sans text-[#6B5A66]">
+              <Clock className="w-3.5 h-3.5 text-[#633248]" />
+              <span>San José, Costa Rica (GMT-6)</span>
             </div>
 
-            <div className="flex items-center gap-1 bg-[#FFF8EF] border border-[#E7D8CF] p-1 rounded-xl text-xs font-medium font-sans">
+            {/* Selector de cuenta activa */}
+            <div className="flex items-center gap-1.5 bg-[#FFF8EF] border border-[#E7D8CF] p-1 rounded-xl text-xs font-medium font-sans">
               <button
+                type="button"
                 onClick={() => {
                   setActiveEmployee(DEMO_COLABORADOR);
                   if (activeTab === 'reportes') setActiveTab('chat');
                 }}
-                className={`px-2.5 py-1 rounded-lg transition-colors ${
+                className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                   !isRRHH
-                    ? 'bg-[#633248] text-white'
-                    : 'text-[#6B5A66] hover:text-[#633248]'
+                    ? 'bg-[#633248] text-white shadow-xs font-semibold'
+                    : 'text-[#6B5A66] hover:text-[#633248] hover:bg-[#F7D8DF]/40'
                 }`}
               >
-                Mariana (Colaboradora)
+                <img
+                  src={DEMO_COLABORADOR.avatar_url}
+                  alt="Mariana"
+                  className="w-4 h-4 rounded-full bg-white/30"
+                />
+                <span>Mariana (Diseño)</span>
               </button>
+
               <button
+                type="button"
                 onClick={() => setActiveEmployee(DEMO_RRHH)}
-                className={`px-2.5 py-1 rounded-lg transition-colors ${
+                className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                   isRRHH
-                    ? 'bg-[#633248] text-white'
-                    : 'text-[#6B5A66] hover:text-[#633248]'
+                    ? 'bg-[#633248] text-white shadow-xs font-semibold'
+                    : 'text-[#6B5A66] hover:text-[#633248] hover:bg-[#F7D8DF]/40'
                 }`}
               >
-                Laura (RRHH)
+                <img
+                  src={DEMO_RRHH.avatar_url}
+                  alt="Laura"
+                  className="w-4 h-4 rounded-full bg-white/30"
+                />
+                <span>Laura (Jefatura RRHH)</span>
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Contenedor Principal */}
-      <main className="max-w-5xl mx-auto px-4 pt-4 flex-1 w-full">
-        {/* Pestañas de Libreta / Agenda Japonesa */}
-        <div className="flex items-end gap-1 border-b border-[#E7D8CF] px-2 overflow-x-auto no-scrollbar">
+      {/* Contenedor Principal: Agenda Abierta con Pestañas */}
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-5 pb-10 flex-1 w-full">
+        {/* Fila de Pestañas Superiores Estilo Sanrio / Midori */}
+        <div className="flex items-end gap-1 px-3 overflow-x-auto no-scrollbar border-b border-[#D8C3B5]">
           <button
+            type="button"
             onClick={() => setActiveTab('chat')}
-            className={`agenda-tab-btn flex items-center gap-1.5 ${
-              activeTab === 'chat' ? 'agenda-tab-btn-active' : ''
-            }`}
+            className={`agenda-tab tab-pink ${activeTab === 'chat' ? 'agenda-tab-active' : ''}`}
           >
             <MessageSquare className="w-3.5 h-3.5 text-[#633248]" />
-            <span>Consultas</span>
+            <span>Consultas de RRHH</span>
           </button>
 
           <button
+            type="button"
             onClick={() => setActiveTab('perfil')}
-            className={`agenda-tab-btn flex items-center gap-1.5 ${
-              activeTab === 'perfil' ? 'agenda-tab-btn-active' : ''
-            }`}
+            className={`agenda-tab tab-sage ${activeTab === 'perfil' ? 'agenda-tab-active' : ''}`}
           >
             <User className="w-3.5 h-3.5 text-[#633248]" />
-            <span>Mis datos</span>
+            <span>Mi Libreta Personal</span>
           </button>
 
           <button
+            type="button"
             onClick={() => setActiveTab('politicas')}
-            className={`agenda-tab-btn flex items-center gap-1.5 ${
-              activeTab === 'politicas' ? 'agenda-tab-btn-active' : ''
-            }`}
+            className={`agenda-tab tab-butter ${activeTab === 'politicas' ? 'agenda-tab-active' : ''}`}
           >
             <BookOpen className="w-3.5 h-3.5 text-[#633248]" />
-            <span>Políticas</span>
+            <span>Políticas Oficiales</span>
           </button>
 
-          {/* «Reportes» se muestra ÚNICAMENTE si el rol es RRHH */}
+          {/* Pestaña de Reportes: Visible únicamente para Rol RRHH */}
           {isRRHH && (
             <button
+              type="button"
               onClick={() => setActiveTab('reportes')}
-              className={`agenda-tab-btn flex items-center gap-1.5 ${
-                activeTab === 'reportes' ? 'agenda-tab-btn-active' : ''
-              }`}
+              className={`agenda-tab tab-lavender ${activeTab === 'reportes' ? 'agenda-tab-active' : ''}`}
             >
               <BarChart3 className="w-3.5 h-3.5 text-[#633248]" />
-              <span>Reportes</span>
+              <span>Reportes de RRHH</span>
             </button>
           )}
 
           <button
+            type="button"
             onClick={() => setActiveTab('docs')}
-            className={`agenda-tab-btn flex items-center gap-1.5 ${
-              activeTab === 'docs' ? 'agenda-tab-btn-active' : ''
-            }`}
+            className={`agenda-tab tab-sand ${activeTab === 'docs' ? 'agenda-tab-active' : ''}`}
           >
             <FileText className="w-3.5 h-3.5 text-[#633248]" />
-            <span>Documentación</span>
+            <span>Documentos de Drive</span>
           </button>
         </div>
 
-        {/* Contenido según pestaña activa */}
-        <div className="pt-4 pb-8">
+        {/* Marco de Hoja de Libreta */}
+        <div className="relative bg-[#FFFDF8] border-x border-b border-[#D8C3B5] rounded-b-2xl shadow-agenda-book p-4 sm:p-7 min-h-[680px]">
+          {/* Anillas de libreta decorativas a la izquierda en pantallas grandes */}
+          <div className="hidden xl:block absolute -left-4 top-16 bottom-16 pointer-events-none">
+            <SpiralBinderRings count={14} />
+          </div>
+
+          {/* Vistas según pestaña activa */}
           {activeTab === 'chat' && <AgendaChat activeEmployee={activeEmployee} />}
 
           {activeTab === 'perfil' && (
@@ -158,37 +188,44 @@ export default function HomePage() {
           )}
 
           {activeTab === 'politicas' && (
-            <div className="max-w-4xl mx-auto space-y-4">
-              <div className="p-5 rounded-agenda bg-[#FFFDF8] border border-[#E7D8CF] shadow-xs flex items-center justify-between">
+            <div className="max-w-4xl mx-auto space-y-6">
+              {/* Encabezado del catálogo oficial */}
+              <div className="p-6 rounded-2xl bg-[#FFF8EF] border border-[#E7D8CF] shadow-card-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="font-heading font-semibold text-base text-[#633248]">
-                    Políticas Oficiales de Nube de Fresa
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="stationery-stamp">NORMATIVA 2026</span>
+                    <span className="text-xs text-[#6B5A66] font-sans">10 Dominios Laborales</span>
+                  </div>
+                  <h3 className="font-heading font-bold text-xl text-[#633248]">
+                    Catálogo de Políticas Oficiales de Nube de Fresa
                   </h3>
-                  <p className="text-xs text-[#6B5A66] font-sans mt-0.5">
-                    Documentos vigentes para consulta interna y cumplimiento legal
+                  <p className="text-xs text-[#6B5A66] font-sans mt-1">
+                    Redactadas conforme al Código de Trabajo de Costa Rica, Ministerio de Trabajo (MTSS) y beneficios del estudio.
                   </p>
                 </div>
-                <span className="text-xs font-semibold text-[#633248] bg-[#F7D8DF] px-3 py-1 rounded-full border border-[#E7D8CF]">
-                  Vigencia 2026
-                </span>
+                <div className="flex items-center gap-2 bg-[#FFFDF8] border border-[#E7D8CF] px-3 py-2 rounded-xl text-xs text-[#633248] shrink-0">
+                  <StrawberryIcon className="w-4 h-4" />
+                  <span className="font-semibold">San José, Costa Rica</span>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* Cuadrícula de 10 Políticas */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {POLICY_DOCUMENTS.map((doc) => (
                   <div
                     key={doc.id}
-                    className="p-4 rounded-agenda bg-[#FFFDF8] border border-[#E7D8CF] hover:border-[#633248]/40 transition-colors flex flex-col justify-between space-y-2.5"
+                    className="p-5 rounded-2xl bg-[#FFFDF8] border border-[#E7D8CF] hover:border-[#633248]/50 hover:shadow-card-subtle transition-all flex flex-col justify-between space-y-3"
                   >
                     <div>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-[#633248] bg-[#F7D8DF] px-2 py-0.5 rounded">
+                        <span className="text-xs font-bold text-[#633248] bg-[#F7D8DF] px-2.5 py-0.5 rounded-md font-heading">
                           {doc.code}
                         </span>
                         <span className="text-[11px] font-sans text-[#6B5A66]">
-                          Versión {doc.version}
+                          Versión {doc.version} · Vigente
                         </span>
                       </div>
-                      <h4 className="font-heading font-semibold text-sm text-[#633248] mt-2 leading-snug">
+                      <h4 className="font-heading font-semibold text-base text-[#633248] mt-2.5 leading-snug">
                         {doc.title}
                       </h4>
                       <p className="text-xs text-[#6B5A66] font-sans mt-1">
@@ -196,15 +233,20 @@ export default function HomePage() {
                       </p>
                     </div>
 
-                    <a
-                      href={doc.drive_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#633248] hover:underline pt-2 border-t border-[#E7D8CF]/60"
-                    >
-                      <span>Ver documento oficial</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
+                    <div className="pt-3 border-t border-[#E7D8CF]/60 flex items-center justify-between">
+                      <span className="text-[11px] text-[#6B5A66] font-sans">
+                        Base documental de RAG
+                      </span>
+                      <a
+                        href={doc.drive_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-[#633248] hover:underline"
+                      >
+                        <span>Ver documento</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -216,46 +258,66 @@ export default function HomePage() {
           )}
 
           {activeTab === 'docs' && (
-            <div className="max-w-3xl mx-auto space-y-3">
-              <div className="p-6 rounded-agenda bg-[#FFFDF8] border border-[#E7D8CF] shadow-xs space-y-4">
-                <h3 className="font-heading font-semibold text-base text-[#633248] border-b border-[#E7D8CF]/60 pb-3">
-                  Documentación del Sistema
-                </h3>
-
-                <div className="space-y-3 text-xs leading-relaxed text-[#382C35] font-sans">
-                  <div className="p-3.5 rounded-xl bg-[#FFF8EF] border border-[#E7D8CF]">
-                    <span className="font-semibold text-sm text-[#633248] block mb-1">
-                      Investigación Jurídica de Costa Rica
-                    </span>
-                    <p className="text-[#6B5A66] mb-1.5">
-                      Estudio normativo sobre Código de Trabajo (Ley 2), MTSS, CCSS, teletrabajo (Ley 9738), feriados, aguinaldo y protección de datos (Ley 8968).
+            <div className="max-w-3xl mx-auto space-y-5">
+              <div className="p-6 rounded-2xl bg-[#FFF8EF] border border-[#E7D8CF] shadow-card-subtle space-y-4">
+                <div className="flex items-center justify-between border-b border-[#E7D8CF]/70 pb-3">
+                  <div>
+                    <h3 className="font-heading font-bold text-lg text-[#633248]">
+                      Documentación Técnica y Fuentes del Sistema
+                    </h3>
+                    <p className="text-xs text-[#6B5A66] font-sans">
+                      Mini Proyecto #2 · Portal de consulta de políticas de RRHH con RAG multiagente
                     </p>
-                    <span className="text-[11px] text-[#633248] font-mono">
-                      Archivo: INVESTIGACION_COSTA_RICA.md
+                  </div>
+                  <PostageStampIcon className="w-8 h-9" />
+                </div>
+
+                <div className="space-y-3 font-sans text-xs text-[#382C35]">
+                  <div className="p-4 rounded-xl bg-white border border-[#E7D8CF]">
+                    <span className="font-semibold text-sm text-[#633248] block mb-1 font-heading">
+                      1. Informe de Investigación Jurídica (Costa Rica)
+                    </span>
+                    <p className="text-[#6B5A66] mb-2 leading-relaxed">
+                      Investigación a profundidad sobre el Código de Trabajo (Ley 2), criterios del MTSS, CCSS, feriados, aguinaldo, teletrabajo (Ley 9738), protocolo contra hostigamiento sexual (Ley 7476) y protección de datos personales (Ley 8968).
+                    </p>
+                    <span className="text-[11px] font-mono text-[#633248] bg-[#F7D8DF]/50 px-2 py-0.5 rounded">
+                      INVESTIGACION_COSTA_RICA.md
                     </span>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-[#FFF8EF] border border-[#E7D8CF]">
-                    <span className="font-semibold text-sm text-[#633248] block mb-1">
-                      Informe Técnico de Arquitectura Multiagente
+                  <div className="p-4 rounded-xl bg-white border border-[#E7D8CF]">
+                    <span className="font-semibold text-sm text-[#633248] block mb-1 font-heading">
+                      2. Informe Técnico de Arquitectura Multiagente
                     </span>
-                    <p className="text-[#6B5A66] mb-1.5">
-                      Detalle de los 5 agentes, prompts desacoplados, fragmentación, esquema Supabase pgvector y justificación del stack.
+                    <p className="text-[#6B5A66] mb-2 leading-relaxed">
+                      Estructura de los 5 agentes especializados, prompts versionados, estrategia de chunking (500–1000 tokens con 150 solapamiento), búsqueda híbrida con RRF, guardrails de seguridad y justificación del stack Next.js + Supabase.
                     </p>
-                    <span className="text-[11px] text-[#633248] font-mono">
-                      Archivo: INFORME_TECNICO.md
+                    <span className="text-[11px] font-mono text-[#633248] bg-[#DCE8D3]/50 px-2 py-0.5 rounded">
+                      INFORME_TECNICO.md
                     </span>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-[#FFF8EF] border border-[#E7D8CF]">
-                    <span className="font-semibold text-sm text-[#633248] block mb-1">
-                      Esquema de Base de Datos Remota
+                  <div className="p-4 rounded-xl bg-white border border-[#E7D8CF]">
+                    <span className="font-semibold text-sm text-[#633248] block mb-1 font-heading">
+                      3. Matriz Oficial de Evaluación (45 Preguntas)
                     </span>
-                    <p className="text-[#6B5A66] mb-1.5">
-                      Estructura SQL para PostgreSQL con pgvector, perfiles, solicitudes, reportes diarios y políticas RLS.
+                    <p className="text-[#6B5A66] mb-2 leading-relaxed">
+                      Las 25 preguntas base del enunciado oficial más 20 preguntas propias con respuestas esperadas, fuentes citadas, latencias y resultados (95.5% aciertos y 100% blindaje en preguntas 21 y 22).
                     </p>
-                    <span className="text-[11px] text-[#633248] font-mono">
-                      Archivo: supabase_schema.sql
+                    <span className="text-[11px] font-mono text-[#633248] bg-[#FFF2D6]/80 px-2 py-0.5 rounded">
+                      HOJA_DE_EVALUACION_45_PREGUNTAS.md
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-white border border-[#E7D8CF]">
+                    <span className="font-semibold text-sm text-[#633248] block mb-1 font-heading">
+                      4. Archivos Simulados para el Pipeline de Google Drive
+                    </span>
+                    <p className="text-[#6B5A66] mb-2 leading-relaxed">
+                      Muestras en múltiples formatos según el requisito del PDF: PDF oficial, documento de Google Docs (`.gdoc`) y hoja de cálculo de salarios (`.csv`).
+                    </p>
+                    <span className="text-[11px] font-mono text-[#633248] bg-[#EBDCE8]/60 px-2 py-0.5 rounded">
+                      docs/archivos_drive_simulados/
                     </span>
                   </div>
                 </div>
@@ -265,16 +327,19 @@ export default function HomePage() {
         </div>
       </main>
 
-      {/* Pie de página discreto */}
-      <footer className="py-4 border-t border-[#E7D8CF] bg-[#FFFDF8] text-center text-xs text-[#6B5A66] font-sans">
-        <div className="flex items-center justify-center gap-1.5 mb-0.5">
-          <StrawberryIcon className="w-3.5 h-3.5 text-[#633248]" />
-          <span className="font-semibold text-[#633248]">Nube de Fresa</span>
-          <span>· San José, Costa Rica</span>
+      {/* Pie de Página de Papelería Artesanal */}
+      <footer className="py-5 border-t border-[#E7D8CF] bg-[#FFFDF8] text-center text-xs text-[#6B5A66] font-sans">
+        <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5">
+            <StrawberryIcon className="w-4 h-4 text-[#633248]" />
+            <span className="font-semibold text-[#633248]">Nube de Fresa S.A.</span>
+            <span>· Estudio de Papelería e Ilustración Digital</span>
+          </div>
+
+          <div className="text-[11px] text-[#6B5A66]">
+            <span>Barrio Amón, San José, Costa Rica · Horario 8:00 a. m. a 5:00 p. m.</span>
+          </div>
         </div>
-        <p className="text-[11px] text-[#6B5A66]/80">
-          La Casita de Nube · Portal interno de Recursos Humanos
-        </p>
       </footer>
     </div>
   );

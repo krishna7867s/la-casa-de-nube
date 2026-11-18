@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Caveat:wght@500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,13 +7,20 @@
 :root {
   --font-heading: 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body: 'Instrument Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-hand: 'Caveat', cursive, sans-serif;
   --bg-crema: #FFF8EF;
   --bg-hoja: #FFFDF8;
   --color-rosa: #F7D8DF;
   --color-salvia: #DCE8D3;
+  --color-mantequilla: #FFF2D6;
+  --color-lavanda: #EBDCE8;
   --color-ciruela: #633248;
+  --color-ciruela-dark: #4A2234;
   --color-texto: #382C35;
+  --color-texto-suave: #6B5A66;
   --color-borde: #E7D8CF;
+  --color-borde-fino: #EFE4DC;
+  --linea-cuaderno: #F3EAE0;
 }
 
 body {
@@ -24,92 +31,178 @@ body {
   padding: 0;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  background-image: 
+    radial-gradient(#E8DACF 0.8px, transparent 0.8px),
+    radial-gradient(#E8DACF 0.8px, #FFF8EF 0.8px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
 }
 
 h1, h2, h3, h4, .font-heading {
   font-family: var(--font-heading);
-  font-weight: 600;
   letter-spacing: -0.015em;
 }
 
-/* Cuadrícula muy tenue de cuaderno japonés */
-.agenda-grid-bg {
-  background-color: #FFF8EF;
+.font-handwriting {
+  font-family: var(--font-hand);
+}
+
+/* Fondo de papel con líneas sutiles de agenda */
+.planner-ruled-lines {
+  background-color: #FFFDF8;
+  background-image: linear-gradient(var(--linea-cuaderno) 1px, transparent 1px);
+  background-size: 100% 32px;
+}
+
+/* Cuadrícula sutil tipo cuaderno japonés */
+.agenda-grid-sheet {
+  background-color: #FFFDF8;
   background-image: 
     linear-gradient(#F5EDE2 1px, transparent 1px),
     linear-gradient(90deg, #F5EDE2 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-size: 20px 20px;
 }
 
-/* Hoja de papel limpio de agenda */
-.paper-sheet {
-  background-color: #FFFDF8;
-  border: 1px solid #E7D8CF;
-  box-shadow: 0 2px 8px rgba(99, 50, 72, 0.04);
+/* Efecto de cinta washi tape artesanal */
+.washi-tape {
+  position: relative;
+  background: rgba(247, 216, 223, 0.85);
+  box-shadow: 0 1px 3px rgba(99, 50, 72, 0.08);
+  backdrop-filter: blur(1px);
 }
 
-/* Borde festoneado / ondulado estilo encaje japonés (como en la referencia My Melody) */
-.scallop-border {
-  background-image: radial-gradient(circle at 10px 0, transparent 0, transparent 9px, #FFFDF8 10px);
-  background-size: 20px 10px;
-  background-repeat: repeat-x;
-  height: 10px;
-  width: 100%;
+.washi-tape::before,
+.washi-tape::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background-size: 6px 6px;
+  background-repeat: repeat-y;
 }
 
-.scallop-border-pink {
-  background-image: radial-gradient(circle at 10px 0, transparent 0, transparent 9px, #F7D8DF 10px);
-  background-size: 20px 10px;
-  background-repeat: repeat-x;
-  height: 10px;
-  width: 100%;
+.washi-tape::before {
+  left: -3px;
+  background-image: radial-gradient(circle at 0 3px, transparent 3px, rgba(247, 216, 223, 0.85) 3px);
 }
 
-/* Pestañas discretas de libreta */
-.agenda-tab-btn {
+.washi-tape::after {
+  right: -3px;
+  background-image: radial-gradient(circle at 6px 3px, transparent 3px, rgba(247, 216, 223, 0.85) 3px);
+}
+
+.washi-tape-sage {
+  background: rgba(220, 232, 211, 0.85);
+}
+.washi-tape-butter {
+  background: rgba(255, 242, 214, 0.85);
+}
+
+/* Sello postal de papelería */
+.stationery-stamp {
+  border: 1.5px dashed #633248;
+  border-radius: 6px;
+  padding: 4px 8px;
   font-family: var(--font-heading);
-  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #633248;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 253, 248, 0.9);
+}
+
+/* Pestañas de libreta japonesa estilo Sanrio / Midori */
+.agenda-tab {
+  position: relative;
+  font-family: var(--font-heading);
+  font-size: 0.825rem;
   font-weight: 600;
-  color: #6B5A66;
-  padding: 0.625rem 1.125rem;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  transition: all 0.15s ease;
-  border: 1px solid transparent;
+  padding: 0.6rem 1.15rem 0.5rem 1.15rem;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border: 1px solid #E7D8CF;
   border-bottom: none;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 -2px 5px rgba(99, 50, 72, 0.03);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  background-color: #F8EFE4;
+  color: #6B5A66;
+  margin-right: 3px;
+  top: 1px;
 }
 
-.agenda-tab-btn:hover {
+.agenda-tab:hover {
+  transform: translateY(-2px);
   color: #633248;
-  background-color: #F7D8DF;
 }
 
-.agenda-tab-btn-active {
-  color: #633248;
-  background-color: #FFFDF8;
-  border-color: #E7D8CF;
-  border-bottom: 1px solid #FFFDF8;
-  margin-bottom: -1px;
+.agenda-tab-active {
+  background-color: #FFFDF8 !important;
+  color: #633248 !important;
+  border-color: #D8C3B5 !important;
+  border-bottom: 2px solid #FFFDF8 !important;
+  margin-bottom: -2px;
+  z-index: 10;
+  transform: translateY(-2px);
+  box-shadow: 0 -3px 8px rgba(99, 50, 72, 0.06);
 }
 
-/* Enfoque visible accesible */
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+/* Colores específicos de pestañas estilo agenda japonesa */
+.tab-pink { background-color: #F9E7EB; }
+.tab-sage { background-color: #E8F0E2; }
+.tab-butter { background-color: #FFF6E5; }
+.tab-lavender { background-color: #F2E8F0; }
+.tab-sand { background-color: #F5EEE6; }
+
+/* Efecto anillas de encuadernación */
+.spiral-hole {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #E8DACF;
+  box-shadow: inset 0 1px 2px rgba(56, 44, 53, 0.35);
+  border: 1px solid #D8C6BA;
+}
+
+/* Encaje festoneado */
+.scallop-lace-pink {
+  background-image: radial-gradient(circle at 10px 0, transparent 0, transparent 8px, #F7D8DF 8.5px);
+  background-size: 20px 9px;
+  background-repeat: repeat-x;
+  height: 9px;
+  width: 100%;
+}
+
+.scallop-lace-cream {
+  background-image: radial-gradient(circle at 10px 0, transparent 0, transparent 8px, #FFFDF8 8.5px);
+  background-size: 20px 9px;
+  background-repeat: repeat-x;
+  height: 9px;
+  width: 100%;
+}
+
+/* Sombra suave y cálida */
+.shadow-agenda-book {
+  box-shadow: 
+    0 1px 1px rgba(99, 50, 72, 0.04),
+    0 4px 12px rgba(99, 50, 72, 0.05),
+    0 16px 36px rgba(99, 50, 72, 0.07);
+}
+
+.shadow-card-subtle {
+  box-shadow: 0 2px 6px rgba(99, 50, 72, 0.035);
+}
+
+/* Enfoque visible accesible sin romper la estética */
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
   outline: 2px solid #633248;
   outline-offset: 2px;
-}
-
-/* Scrollbar tenue */
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-::-webkit-scrollbar-track {
-  background: #FFF8EF;
-}
-::-webkit-scrollbar-thumb {
-  background: #E7D8CF;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #F7D8DF;
 }

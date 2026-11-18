@@ -32,7 +32,7 @@ export interface EvaluationRecord {
   notes?: string;
 }
 
-export type LeaveRequestType = 'vacaciones' | 'estudio' | 'maternidad_paternidad' | 'duelo' | 'personal';
+export type LeaveRequestType = 'vacaciones' | 'estudio' | 'maternidad_paternidad' | 'duelo' | 'personal' | 'permiso';
 export type LeaveRequestStatus = 'pendiente' | 'aprobada' | 'rechazada';
 
 export interface LeaveRequest {

@@ -2,8 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, EmployeeProfile } from '../../types';
-import { CloudIcon, StrawberryIcon, ScallopHeaderLace } from '../icons/StationeryIcons';
-import { Send, ExternalLink, BookOpen, Volume2, Mic, MicOff, Sparkles } from 'lucide-react';
+import { CloudIcon, StrawberryIcon, ScallopHeaderLace, PaperclipIcon } from '../icons/StationeryIcons';
+import { Send, ExternalLink, BookOpen, Volume2, Mic, MicOff, Check, Sparkles } from 'lucide-react';
 
 interface AgendaChatProps {
   activeEmployee: EmployeeProfile;
@@ -38,7 +38,7 @@ function TypewriterContent({ text, isStreaming }: { text: string; isStreaming?: 
   }, [text, isStreaming]);
 
   return (
-    <div className="text-base leading-relaxed whitespace-pre-wrap font-sans">
+    <div className="text-base leading-relaxed whitespace-pre-wrap font-sans text-[#382C35]">
       {displayed}
       {typing && <span className="inline-block w-1.5 h-4 ml-1 bg-[#633248] animate-pulse align-middle" />}
     </div>
@@ -51,6 +51,7 @@ export function AgendaChat({ activeEmployee }: AgendaChatProps) {
   const [loading, setLoading] = useState(false);
   const [lastStreamingId, setLastStreamingId] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -65,9 +66,24 @@ export function AgendaChat({ activeEmployee }: AgendaChatProps) {
 
   // Las 3 preguntas exactas del estado inicial solicitadas por la especificación
   const initialSuggestions = [
-    '¿Puedo ir en jeans?',
-    '¿Cómo pido un reembolso?',
-    '¿Cuántos días de vacaciones me quedan?',
+    {
+      question: '¿Puedo ir en jeans?',
+      subtitle: 'Código de vestimenta',
+      color: 'bg-[#FFF2F5] border-[#F2D0D9] text-[#633248]',
+      tape: 'bg-[#F7D8DF]',
+    },
+    {
+      question: '¿Cómo pido un reembolso?',
+      subtitle: 'Gastos y viáticos antes del 20',
+      color: 'bg-[#F4F8F1] border-[#D6E5CC] text-[#3D5A32]',
+      tape: 'bg-[#DCE8D3]',
+    },
+    {
+      question: '¿Cuántos días de vacaciones me quedan?',
+      subtitle: 'Consulta de saldo personal',
+      color: 'bg-[#FFFDF0] border-[#EFE2C6] text-[#634821]',
+      tape: 'bg-[#FFF2D6]',
+    },
   ];
 
   const speakMessage = (text: string) => {
@@ -168,66 +184,78 @@ export function AgendaChat({ activeEmployee }: AgendaChatProps) {
   };
 
   return (
-    <div className="relative flex flex-col h-[720px] max-w-4xl mx-auto rounded-agenda border border-[#E7D8CF] bg-[#FFFDF8] shadow-sm overflow-hidden">
-      {/* Encaje festoneado decorativo superior inspirado en la referencia My Melody */}
+    <div className="relative flex flex-col h-[740px] max-w-4xl mx-auto rounded-2xl border border-[#D8C3B5] bg-[#FFFDF8] shadow-agenda-book overflow-hidden">
+      {/* Encaje festoneado decorativo superior */}
       <div className="w-full bg-[#FFF8EF]">
         <ScallopHeaderLace className="w-full h-2.5 text-[#F7D8DF]" />
       </div>
 
-      {/* Encabezado compacto */}
+      {/* Barra de título de la hoja de agenda */}
       <div className="bg-[#FFFDF8] border-b border-[#E7D8CF] px-6 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-[#F7D8DF] flex items-center justify-center border border-[#E7D8CF]">
-            <CloudIcon className="w-4 h-4 text-[#633248]" />
+          <div className="w-9 h-9 rounded-2xl bg-[#FFF8EF] flex items-center justify-center border border-[#E7D8CF] shadow-xs">
+            <CloudIcon className="w-5 h-5 text-[#633248]" />
           </div>
           <div>
-            <h2 className="font-heading font-semibold text-lg text-[#633248] tracking-tight leading-none">
+            <h2 className="font-heading font-bold text-lg text-[#633248] tracking-tight leading-none">
               Consultas de RRHH
             </h2>
             <p className="text-xs text-[#6B5A66] mt-1 font-sans">
-              La Casita de Nube · Sesión activa de {activeEmployee.full_name}
+              La Casita de Nube · Sesión de {activeEmployee.full_name} ({activeEmployee.role === 'rrhh' ? 'Rol RRHH' : 'Colaboradora'})
             </p>
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-2 text-xs text-[#6B5A66]">
-          <StrawberryIcon className="w-4 h-4 text-[#633248]" />
-          <span className="font-sans">Nube de Fresa · Costa Rica</span>
+        <div className="flex items-center gap-2">
+          <span className="stationery-stamp hidden sm:inline-flex">
+            SELLO OFICIAL
+          </span>
+          <div className="w-7 h-7 rounded-full bg-[#FFF8EF] border border-[#E7D8CF] flex items-center justify-center text-[#633248]">
+            <StrawberryIcon className="w-3.5 h-3.5" />
+          </div>
         </div>
       </div>
 
-      {/* Área Principal de Conversación */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#FFFDF8]">
-        {/* Estado Inicial: Ilustración sutil y 3 sugerencias que desaparecen al iniciar */}
+      {/* Área Principal de Conversación con Líneas Tenues de Agenda */}
+      <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 planner-ruled-lines">
+        {/* Estado Inicial: 3 Memos de Papel Adhesivo Washi */}
         {messages.length === 0 && (
-          <div className="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto py-8">
-            <div className="w-14 h-14 rounded-2xl bg-[#FFF8EF] border border-[#E7D8CF] flex items-center justify-center mb-4">
-              <CloudIcon className="w-8 h-8 text-[#633248]" />
+          <div className="h-full flex flex-col items-center justify-center text-center max-w-xl mx-auto py-6">
+            <div className="w-16 h-16 rounded-3xl bg-[#FFF8EF] border border-[#E7D8CF] flex items-center justify-center mb-4 shadow-card-subtle">
+              <CloudIcon className="w-9 h-9 text-[#633248]" />
             </div>
 
-            <h3 className="font-heading font-semibold text-lg text-[#633248] mb-1">
+            <h3 className="font-heading font-bold text-xl text-[#633248] mb-1.5">
               ¿Qué querés consultar hoy?
             </h3>
-            <p className="text-sm text-[#6B5A66] mb-6 font-sans">
-              Podés consultar las políticas internas, tu saldo de vacaciones o tus trámites de personal.
+            <p className="text-xs text-[#6B5A66] mb-8 font-sans max-w-md">
+              Escribí tu pregunta sobre normativas, vacaciones, feriados o pagos. El orquestador consultará los documentos oficiales del estudio.
             </p>
 
-            {/* Tres sugerencias exactas solicitadas */}
-            <div className="w-full space-y-2">
+            {/* Tres Notas Memos con Washi Tape */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 w-full">
               {initialSuggestions.map((sug, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={(e) => {
                     e.preventDefault();
-                    handleSend(sug);
+                    handleSend(sug.question);
                   }}
-                  className="w-full text-left px-4 py-3 rounded-xl border border-[#E7D8CF] bg-[#FFF8EF] hover:bg-[#F7D8DF] text-[#382C35] text-sm font-medium transition-colors flex items-center justify-between group cursor-pointer"
+                  className={`relative p-4 rounded-xl border text-left transition-all hover:-translate-y-1 hover:shadow-card-subtle cursor-pointer ${sug.color}`}
                 >
-                  <span>{sug}</span>
-                  <span className="text-xs text-[#633248] opacity-0 group-hover:opacity-100 transition-opacity">
-                    Consultar
-                  </span>
+                  {/* Cinta Washi decorativa */}
+                  <div
+                    className={`absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-3.5 rounded-xs opacity-90 shadow-xs border border-black/5 ${sug.tape}`}
+                  />
+                  <div className="pt-1">
+                    <span className="font-heading font-semibold text-sm block leading-snug">
+                      {sug.question}
+                    </span>
+                    <span className="text-[11px] font-sans opacity-70 block mt-1.5">
+                      {sug.subtitle}
+                    </span>
+                  </div>
                 </button>
               ))}
             </div>
@@ -242,32 +270,41 @@ export function AgendaChat({ activeEmployee }: AgendaChatProps) {
           return (
             <div key={msg.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
               <div
-                className={`max-w-[85%] sm:max-w-[78%] rounded-2xl p-4 sm:p-5 ${
+                className={`max-w-[85%] sm:max-w-[78%] rounded-2xl p-5 ${
                   isUser
-                    ? 'bg-[#633248] text-white rounded-br-xs'
-                    : 'bg-[#FFF8EF] text-[#382C35] border border-[#E7D8CF] rounded-bl-xs'
+                    ? 'bg-[#633248] text-white shadow-memo rounded-br-xs'
+                    : 'bg-[#FFFDF8] text-[#382C35] border border-[#E7D8CF] shadow-memo rounded-bl-xs'
                 }`}
               >
-                {/* Etiqueta de procedencia simple y control de voz */}
-                {!isUser && (
-                  <div className="flex items-center justify-between mb-2 pb-1 border-b border-[#E7D8CF]/60 font-heading">
-                    <span className="text-xs font-semibold text-[#633248]">
-                      {isPersonal ? 'Tus datos' : 'Políticas de Nube de Fresa'}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => speakMessage(msg.content)}
-                      className="p-1 text-[#6B5A66] hover:text-[#633248] rounded hover:bg-[#F7D8DF]/60 transition-colors cursor-pointer"
-                      title="Escuchar respuesta en voz alta"
-                    >
-                      <Volume2 className="w-3.5 h-3.5" />
-                    </button>
+                {/* Cabecera del mensaje */}
+                {!isUser ? (
+                  <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-[#E7D8CF]/70 font-heading">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-[#633248] uppercase tracking-wide">
+                        {isPersonal ? 'Tus datos registrados' : 'Políticas de Nube de Fresa'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => speakMessage(msg.content)}
+                        className="p-1 text-[#6B5A66] hover:text-[#633248] rounded hover:bg-[#F7D8DF]/60 transition-colors cursor-pointer"
+                        title="Escuchar respuesta en voz alta"
+                      >
+                        <Volume2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-[11px] font-semibold text-white/70 mb-1 font-heading">
+                    {activeEmployee.full_name.split(' ')[0]} pregunta:
                   </div>
                 )}
 
-                {/* Texto de respuesta con tamaño mínimo de 16px (text-base) e interlineado cómodo */}
+                {/* Texto de respuesta con tamaño mínimo de 16px e interlineado cómodo */}
                 {isUser ? (
-                  <div className="text-base leading-relaxed whitespace-pre-wrap font-sans">
+                  <div className="text-base leading-relaxed whitespace-pre-wrap font-sans text-white">
                     {msg.content}
                   </div>
                 ) : (
@@ -279,18 +316,18 @@ export function AgendaChat({ activeEmployee }: AgendaChatProps) {
 
                 {/* Fuentes debajo de la respuesta: Supabase (título, versión, vigencia) o Drive */}
                 {!isUser && msg.citations && msg.citations.length > 0 && (
-                  <div className="mt-3.5 pt-2.5 border-t border-[#E7D8CF]/70 space-y-1.5">
-                    <span className="text-xs font-semibold text-[#6B5A66] block">
-                      Fuente:
+                  <div className="mt-4 pt-3 border-t border-dashed border-[#E7D8CF] space-y-1.5">
+                    <span className="text-[11px] font-bold text-[#6B5A66] uppercase tracking-wider block font-heading">
+                      Fuente oficial verificada:
                     </span>
                     <div className="space-y-1 text-xs text-[#382C35]">
                       {msg.citations.map((cite, i) => (
-                        <div key={i} className="flex flex-wrap items-center gap-1.5 py-0.5">
+                        <div key={i} className="flex flex-wrap items-center gap-1.5 py-1 px-2.5 rounded-lg bg-[#FFF8EF] border border-[#E7D8CF]">
                           <BookOpen className="w-3.5 h-3.5 text-[#633248] shrink-0" />
-                          <span className="font-semibold text-[#633248]">
+                          <span className="font-semibold text-[#633248] font-heading">
                             {cite.document_title}
                           </span>
-                          <span className="text-[#6B5A66]">
+                          <span className="text-[#6B5A66] font-sans">
                             · Versión {cite.version || '1.0'} · Vigencia {cite.vigencia || '2026-01-01'}
                           </span>
 
@@ -300,7 +337,7 @@ export function AgendaChat({ activeEmployee }: AgendaChatProps) {
                               href={cite.drive_url}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center gap-1 font-semibold text-[#633248] hover:underline ml-1"
+                              className="inline-flex items-center gap-1 font-semibold text-[#633248] hover:underline ml-auto"
                             >
                               <span>Ver documento</span>
                               <ExternalLink className="w-3 h-3" />
@@ -318,9 +355,9 @@ export function AgendaChat({ activeEmployee }: AgendaChatProps) {
 
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-[#FFF8EF] border border-[#E7D8CF] rounded-2xl rounded-bl-xs px-4 py-3 text-sm text-[#633248] flex items-center gap-2">
+            <div className="bg-[#FFFDF8] border border-[#E7D8CF] rounded-2xl rounded-bl-xs px-4 py-3 text-sm text-[#633248] flex items-center gap-2.5 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-[#633248] animate-pulse" />
-              <span>Consultando las políticas...</span>
+              <span className="font-sans text-xs">Consultando el catálogo oficial...</span>
             </div>
           </div>
         )}
@@ -329,7 +366,7 @@ export function AgendaChat({ activeEmployee }: AgendaChatProps) {
       </div>
 
       {/* Campo de escritura fijo en la parte inferior */}
-      <div className="p-4 bg-[#FFFDF8] border-t border-[#E7D8CF]">
+      <div className="p-4 sm:p-5 bg-[#FFFDF8] border-t border-[#E7D8CF]">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -348,10 +385,11 @@ export function AgendaChat({ activeEmployee }: AgendaChatProps) {
                 handleSend();
               }
             }}
-            placeholder={isListening ? "Escuchando... hablá con claridad" : "Escribí tu pregunta"}
+            placeholder={isListening ? "Escuchando... podés hablar" : "Escribí tu pregunta sobre políticas o trámites"}
             disabled={loading}
-            className="flex-1 bg-[#FFF8EF] border border-[#E7D8CF] rounded-xl px-4 py-3 text-base text-[#382C35] placeholder-[#6B5A66]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#633248]"
+            className="flex-1 bg-[#FFF8EF] border border-[#E7D8CF] rounded-xl px-4 py-3 text-base text-[#382C35] placeholder-[#6B5A66]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#633248] transition-colors"
           />
+
           <button
             type="button"
             onClick={toggleListening}
@@ -365,10 +403,11 @@ export function AgendaChat({ activeEmployee }: AgendaChatProps) {
           >
             {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
           </button>
+
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="bg-[#633248] hover:bg-[#7A3F59] text-white font-heading font-semibold text-sm px-5 py-3 rounded-xl flex items-center gap-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-none"
+            className="bg-[#633248] hover:bg-[#7A3F59] text-white font-heading font-semibold text-sm px-6 py-3 rounded-xl flex items-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs active:translate-y-0.5"
           >
             <span>Enviar</span>
             <Send className="w-3.5 h-3.5" />
