@@ -211,44 +211,49 @@ export default function HomePage() {
 
               {/* Cuadrícula de 10 Políticas */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {POLICY_DOCUMENTS.map((doc) => (
-                  <div
-                    key={doc.id}
-                    className="p-5 rounded-2xl bg-[#FFFDF8] border border-[#E7D8CF] hover:border-[#633248]/50 hover:shadow-card-subtle transition-all flex flex-col justify-between space-y-3"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-[#633248] bg-[#F7D8DF] px-2.5 py-0.5 rounded-md font-heading">
-                          {doc.code}
-                        </span>
-                        <span className="text-[11px] font-sans text-[#6B5A66]">
-                          Versión {doc.version} · Vigente
-                        </span>
+                {POLICY_DOCUMENTS.map((doc, idx) => {
+                  const washiColors = ['bg-[#F7D8DF]', 'bg-[#DCE8D3]', 'bg-[#FFF2D6]', 'bg-[#EED8EA]', 'bg-[#E5D7CE]'];
+                  const washi = washiColors[idx % washiColors.length];
+                  return (
+                    <div
+                      key={doc.id}
+                      className="relative p-5 rounded-2xl bg-[#FFFDF8] border border-[#E7D8CF] hover:border-[#633248]/50 hover:shadow-card-subtle transition-all flex flex-col justify-between space-y-3"
+                    >
+                      <div className={`absolute -top-2 left-8 w-14 h-3.5 ${washi} opacity-85 rounded-xs border border-black/5`} />
+                      <div className="pt-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-[#633248] bg-[#FFF8EF] border border-[#E7D8CF] px-2.5 py-0.5 rounded-md font-heading">
+                            {doc.code}
+                          </span>
+                          <span className="text-[11px] font-sans text-[#6B5A66]">
+                            Versión {doc.version} · Vigente
+                          </span>
+                        </div>
+                        <h4 className="font-heading font-semibold text-base text-[#633248] mt-2.5 leading-snug">
+                          {doc.title}
+                        </h4>
+                        <p className="text-xs text-[#6B5A66] font-sans mt-1">
+                          Responsable: {doc.responsible_role}
+                        </p>
                       </div>
-                      <h4 className="font-heading font-semibold text-base text-[#633248] mt-2.5 leading-snug">
-                        {doc.title}
-                      </h4>
-                      <p className="text-xs text-[#6B5A66] font-sans mt-1">
-                        Responsable: {doc.responsible_role}
-                      </p>
-                    </div>
 
-                    <div className="pt-3 border-t border-[#E7D8CF]/60 flex items-center justify-between">
-                      <span className="text-[11px] text-[#6B5A66] font-sans">
-                        Base documental de RAG
-                      </span>
-                      <a
-                        href={doc.drive_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-[#633248] hover:underline"
-                      >
-                        <span>Ver documento</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
+                      <div className="pt-3 border-t border-[#E7D8CF]/60 flex items-center justify-between">
+                        <span className="text-[11px] text-[#6B5A66] font-sans">
+                          Base normativa oficial
+                        </span>
+                        <a
+                          href={doc.drive_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#633248] hover:underline"
+                        >
+                          <span>Ver documento</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -273,50 +278,54 @@ export default function HomePage() {
                 </div>
 
                 <div className="space-y-3 font-sans text-xs text-[#382C35]">
-                  <div className="p-4 rounded-xl bg-white border border-[#E7D8CF]">
+                  <div className="relative p-4.5 rounded-xl bg-[#FFFDF8] border border-[#E7D8CF] shadow-xs">
+                    <PaperclipIcon className="absolute top-3 right-3 w-4 h-6 text-[#633248]/40" />
                     <span className="font-semibold text-sm text-[#633248] block mb-1 font-heading">
                       1. Informe de Investigación Jurídica (Costa Rica)
                     </span>
                     <p className="text-[#6B5A66] mb-2 leading-relaxed">
                       Investigación a profundidad sobre el Código de Trabajo (Ley 2), criterios del MTSS, CCSS, feriados, aguinaldo, teletrabajo (Ley 9738), protocolo contra hostigamiento sexual (Ley 7476) y protección de datos personales (Ley 8968).
                     </p>
-                    <span className="text-[11px] font-mono text-[#633248] bg-[#F7D8DF]/50 px-2 py-0.5 rounded">
+                    <span className="text-[11px] font-mono text-[#633248] bg-[#F7D8DF]/60 px-2 py-0.5 rounded border border-[#F2D0D9]">
                       INVESTIGACION_COSTA_RICA.md
                     </span>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-white border border-[#E7D8CF]">
+                  <div className="relative p-4.5 rounded-xl bg-[#FFFDF8] border border-[#E7D8CF] shadow-xs">
+                    <PaperclipIcon className="absolute top-3 right-3 w-4 h-6 text-[#355328]/40" />
                     <span className="font-semibold text-sm text-[#633248] block mb-1 font-heading">
                       2. Informe Técnico de Arquitectura Multiagente
                     </span>
                     <p className="text-[#6B5A66] mb-2 leading-relaxed">
                       Estructura de los 5 agentes especializados, prompts versionados, estrategia de chunking (500–1000 tokens con 150 solapamiento), búsqueda híbrida con RRF, guardrails de seguridad y justificación del stack Next.js + Supabase.
                     </p>
-                    <span className="text-[11px] font-mono text-[#633248] bg-[#DCE8D3]/50 px-2 py-0.5 rounded">
+                    <span className="text-[11px] font-mono text-[#355328] bg-[#DCE8D3]/60 px-2 py-0.5 rounded border border-[#D0E2C6]">
                       INFORME_TECNICO.md
                     </span>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-white border border-[#E7D8CF]">
+                  <div className="relative p-4.5 rounded-xl bg-[#FFFDF8] border border-[#E7D8CF] shadow-xs">
+                    <PaperclipIcon className="absolute top-3 right-3 w-4 h-6 text-[#704820]/40" />
                     <span className="font-semibold text-sm text-[#633248] block mb-1 font-heading">
                       3. Matriz Oficial de Evaluación (45 Preguntas)
                     </span>
                     <p className="text-[#6B5A66] mb-2 leading-relaxed">
                       Las 25 preguntas base del enunciado oficial más 20 preguntas propias con respuestas esperadas, fuentes citadas, latencias y resultados (95.5% aciertos y 100% blindaje en preguntas 21 y 22).
                     </p>
-                    <span className="text-[11px] font-mono text-[#633248] bg-[#FFF2D6]/80 px-2 py-0.5 rounded">
+                    <span className="text-[11px] font-mono text-[#704820] bg-[#FFF2D6] px-2 py-0.5 rounded border border-[#EFE1C3]">
                       HOJA_DE_EVALUACION_45_PREGUNTAS.md
                     </span>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-white border border-[#E7D8CF]">
+                  <div className="relative p-4.5 rounded-xl bg-[#FFFDF8] border border-[#E7D8CF] shadow-xs">
+                    <PaperclipIcon className="absolute top-3 right-3 w-4 h-6 text-[#552B46]/40" />
                     <span className="font-semibold text-sm text-[#633248] block mb-1 font-heading">
                       4. Archivos Simulados para el Pipeline de Google Drive
                     </span>
                     <p className="text-[#6B5A66] mb-2 leading-relaxed">
                       Muestras en múltiples formatos según el requisito del PDF: PDF oficial, documento de Google Docs (`.gdoc`) y hoja de cálculo de salarios (`.csv`).
                     </p>
-                    <span className="text-[11px] font-mono text-[#633248] bg-[#EBDCE8]/60 px-2 py-0.5 rounded">
+                    <span className="text-[11px] font-mono text-[#552B46] bg-[#EED8EA]/70 px-2 py-0.5 rounded border border-[#E4C8E0]">
                       docs/archivos_drive_simulados/
                     </span>
                   </div>
